@@ -11,6 +11,12 @@ export default defineConfig({
     open: true,
   },
 
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
+
   test: {
     root: import.meta.dirname,
     name: packageJson.name,
