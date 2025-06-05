@@ -1,6 +1,6 @@
-import type { JSX } from "react"
+import type { JSX } from 'react'
 
-export const ChatHeader = ():JSX.Element => {
+export const ChatHeader = (): JSX.Element => {
   return (
     <header className="w-full bg-blue-600 text-white shadow-md">
       <div className="max-w-screen-xl mx-auto px-4 py-3 flex flex-col sm:flex-row items-center justify-center">
