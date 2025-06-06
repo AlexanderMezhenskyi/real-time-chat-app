@@ -26,7 +26,7 @@ export const MessageList = ({ scrollContainerRef }: MessageListProps): JSX.Eleme
         hasScrolledRef.current = true
       })
     }
-  }, [messages,scrollContainerRef])
+  }, [messages, scrollContainerRef])
 
   if (!messages.length) {
     return (
