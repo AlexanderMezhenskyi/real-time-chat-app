@@ -2,8 +2,12 @@ import { io } from 'socket.io-client'
 import type { Socket } from 'socket.io-client'
 
 let rpcId = 0
+const socketUrl: string =
+  import.meta.env.MODE === "development"
+    ? (import.meta.env.VITE_SOCKET_URL_DEV as string)
+    : (import.meta.env.VITE_SOCKET_URL_PROD as string)
 
-export const socket: Socket = io('http://localhost:3000')
+export const socket: Socket = io(socketUrl)
 
 type JsonRpcRequest = {
   jsonrpc: '2.0'
