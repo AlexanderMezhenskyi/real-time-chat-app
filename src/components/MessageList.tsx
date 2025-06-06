@@ -1,9 +1,32 @@
+import type { JSX, RefObject } from 'react'
+import { useEffect, useRef } from 'react'
 import { useAppSelector } from '@/app/hooks.ts'
-import { selectMessages } from '@/features/chat'
-import type { JSX } from 'react'
+import { selectMessages, selectUsername } from '@/features/chat'
+import { MessageItem } from '@/components/MessageItem'
 
-export const MessageList = (): JSX.Element => {
+type MessageListProps = {
+  scrollContainerRef: RefObject<HTMLDivElement | null>
+}
+
+export const MessageList = ({ scrollContainerRef }: MessageListProps): JSX.Element => {
   const messages = useAppSelector(selectMessages)
+  const currentUser = useAppSelector(selectUsername)
+  const hasScrolledRef = useRef(false)
+
+  useEffect(() => {
+    const container = scrollContainerRef.current
+
+    if (!container) return
+
+    const isAtBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 100
+
+    if (isAtBottom) {
+      requestAnimationFrame(() => {
+        container.scrollTop = container.scrollHeight
+        hasScrolledRef.current = true
+      })
+    }
+  }, [messages,scrollContainerRef])
 
   if (!messages.length) {
     return (
@@ -14,24 +37,15 @@ export const MessageList = (): JSX.Element => {
   }
 
   return (
-    <div className="flex flex-col gap-2 overflow-y-auto h-full">
+    <div className="flex flex-col gap-4 bg-white">
       {messages.map(({ id, author, content, timestamp }) => (
-        <div key={id} className="max-w-md p-3 rounded-lg shadow-sm bg-white border border-gray-200">
-          <div className="flex items-center justify-between mb-1">
-            <span className="font-semibold text-sm text-blue-600">{author}</span>
-            <span className="text-xs text-gray-400">
-              {new Date(timestamp).toLocaleString('en-US', {
-                day: 'numeric',
-                month: 'short',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: false,
-              })}
-            </span>
-          </div>
-          <p className="text-sm text-gray-800">{content}</p>
-        </div>
+        <MessageItem
+          key={id}
+          author={author}
+          content={content}
+          timestamp={timestamp}
+          isOwnMessage={author === currentUser}
+        />
       ))}
     </div>
   )

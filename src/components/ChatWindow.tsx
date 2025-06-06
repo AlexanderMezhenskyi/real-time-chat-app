@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useAppDispatch, useAppSelector } from '@/app/hooks.ts'
 import { addMessage, selectUsername, setUsername } from '@/features/chat'
 import { ChatHeader } from '@/components/ChatHeader'
@@ -19,6 +19,7 @@ type RpcMessage<T = unknown> = {
 export const ChatWindow = (): JSX.Element => {
   const dispatch = useAppDispatch()
   const username = useAppSelector(selectUsername)
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!username) {
@@ -50,8 +51,8 @@ export const ChatWindow = (): JSX.Element => {
         <ChatSidebar users={['User123', 'User456', 'Anna99']} />
 
         <main className="flex flex-col flex-1 h-full">
-          <div className="flex flex-col flex-1 overflow-y-auto p-4">
-            <MessageList />
+          <div className="flex flex-col flex-1 overflow-y-auto p-4" ref={scrollContainerRef}>
+            <MessageList scrollContainerRef={scrollContainerRef} />
           </div>
           <div className="p-4">
             <MessageInput />
