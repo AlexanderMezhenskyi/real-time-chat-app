@@ -48,11 +48,14 @@ export const ChatWindow = (): JSX.Element => {
     <div className="flex flex-col h-screen">
       <ChatHeader />
 
-      <div className="flex flex-1 overflow-hidden">
-        <ChatSidebar users={['User123', 'User456', 'Anna99']} />
+      <div className="max-w-screen-xl mx-auto w-full flex flex-1 overflow-hidden">
+        <ChatSidebar />
 
         <main className="flex flex-col flex-1 h-full">
-          <div className="flex flex-col flex-1 overflow-y-auto p-4" ref={scrollContainerRef}>
+          <div
+            className="flex flex-col flex-1 border-r border-gray-200 overflow-y-auto p-4"
+            ref={scrollContainerRef}
+          >
             <MessageList scrollContainerRef={scrollContainerRef} />
           </div>
           <div className="p-4">

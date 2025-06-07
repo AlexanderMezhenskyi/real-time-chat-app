@@ -1,6 +1,8 @@
 import { createAppSlice } from '@/app/createAppSlice'
 import type { PayloadAction } from '@reduxjs/toolkit'
+import { createSelector } from '@reduxjs/toolkit'
 import type { ChatMessage } from '@/features/chat/types'
+import type { RootState } from '@/app/store'
 
 export type ChatSliceState = {
   messages: ChatMessage[]
@@ -27,11 +29,23 @@ export const chatSlice = createAppSlice({
       state.messages = []
     }),
   }),
-  selectors: {
-    selectMessages: state => state.messages,
-    selectUsername: state => state.username,
-  },
 })
 
+export const chatSelectors = {
+  selectMessages: (state: RootState) => state.chat.messages,
+  selectUsername: (state: RootState) => state.chat.username,
+  selectActiveUsers: createSelector(
+    [state => state.chat.messages, state => state.chat.username],
+    (messages: ChatMessage[], username: string) => {
+      const usersSet = new Set<string>()
+      messages.forEach(msg => {
+        if (msg.author) usersSet.add(msg.author)
+      })
+      if (username) usersSet.add(username)
+      return Array.from(usersSet)
+    },
+  ),
+}
+
 export const { addMessage, setUsername, clearMessages } = chatSlice.actions
-export const { selectMessages, selectUsername } = chatSlice.selectors
+export const { selectMessages, selectUsername, selectActiveUsers } = chatSelectors
