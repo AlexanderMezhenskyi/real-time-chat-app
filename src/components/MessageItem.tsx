@@ -1,6 +1,5 @@
 import type { JSX } from 'react'
-import { getAvatarColor } from '@/utils/getAvatarColor'
-import { getUserInitials } from '@/utils/geUsertInitials'
+import { UserAvatar } from '@/components/UserAvatar'
 
 type MessageItemProps = {
   author: string
@@ -15,9 +14,6 @@ export const MessageItem = ({
   timestamp,
   isOwnMessage,
 }: MessageItemProps): JSX.Element => {
-  const initials = getUserInitials(author)
-  const avatarColor = getAvatarColor(author)
-
   const formattedTime = new Date(timestamp).toLocaleString('en-US', {
     hour: '2-digit',
     minute: '2-digit',
@@ -29,13 +25,7 @@ export const MessageItem = ({
   return (
     <div className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
       <div className={`flex items-end gap-2 max-w-[75%] ${isOwnMessage ? 'flex-row-reverse' : ''}`}>
-        <div
-          className="min-w-8 min-h-8 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
-          style={{ backgroundColor: avatarColor }}
-        >
-          {initials}
-        </div>
-
+        <UserAvatar user={author} />
         <div
           className={`p-3 rounded-xl border shadow-sm ${
             isOwnMessage
@@ -43,9 +33,16 @@ export const MessageItem = ({
               : 'bg-emerald-50 text-emerald-800 border border-emerald-100 rounded-bl-none'
           }`}
         >
-          <div className="text-sm">{content}</div>
+          {!isOwnMessage && (
+            <div className="text-xs font-semibold text-emerald-600 mb-1">{author}</div>
+          )}
+
+          <div className="text-sm whitespace-pre-wrap break-words">{content}</div>
+
           <div
-            className={`text-[10px] mt-1 text-gray-300 text-right ${isOwnMessage ? 'text-gray-300' : 'text-gray-500'}`}
+            className={`text-[10px] mt-1 text-right ${
+              isOwnMessage ? 'text-blue-200' : 'text-emerald-500'
+            }`}
           >
             {formattedTime}
           </div>
