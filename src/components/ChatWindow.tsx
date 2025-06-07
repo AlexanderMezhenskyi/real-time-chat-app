@@ -6,6 +6,7 @@ import { ChatSidebar } from '@/components/ChatSidebar'
 import { MessageInput } from '@/components/MessageInput'
 import { MessageList } from '@/components/MessageList'
 import { socket } from '@/utils/socketUtils.ts'
+import { faker } from '@faker-js/faker'
 import type { ChatMessage } from '@/features/chat'
 import type { JSX } from 'react'
 
@@ -23,7 +24,7 @@ export const ChatWindow = (): JSX.Element => {
 
   useEffect(() => {
     if (!username) {
-      dispatch(setUsername('User' + String(Math.floor(Math.random() * 1000))))
+      dispatch(setUsername(faker.person.fullName()))
     }
   }, [username, dispatch])
 
