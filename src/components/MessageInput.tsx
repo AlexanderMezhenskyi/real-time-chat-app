@@ -1,5 +1,5 @@
 import type { JSX } from 'react'
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useAppSelector } from '@/app/hooks.ts'
 import { selectUsername } from '@/features/chat'
 import { sendRpc } from '@/utils/socketUtils.ts'
@@ -7,12 +7,18 @@ import { sendRpc } from '@/utils/socketUtils.ts'
 export const MessageInput = (): JSX.Element => {
   const username = useAppSelector(selectUsername)
   const [message, setMessage] = useState('')
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null)
+
+  useEffect(() => {
+    textareaRef.current?.focus()
+  }, [])
 
   const handleSend = async () => {
     if (!message.trim()) return
     try {
       await sendRpc('message', { message, username })
       setMessage('')
+      textareaRef.current?.focus()
     } catch (err) {
       console.error('Send failed:', err)
     }
@@ -22,6 +28,7 @@ export const MessageInput = (): JSX.Element => {
     <div className="w-full px-4 py-3 bg-white border-t border-gray-200">
       <div className="flex flex-col sm:flex-row sm:items-end gap-2">
         <textarea
+          ref={textareaRef}
           value={message}
           onChange={e => {
             setMessage(e.target.value)
