@@ -1,6 +1,6 @@
 import type { JSX } from 'react'
 import { useAppSelector } from '@/app/hooks.ts'
-import { ChatIcon3D } from '@/components/ChatIcon3D/ChatIcon3D.tsx'
+import { ChatIcon3D } from '@/components/ChatIcon3D/ChatIcon3D'
 import { selectMessages } from '@/features/chat'
 
 export const ChatHeader = (): JSX.Element => {
