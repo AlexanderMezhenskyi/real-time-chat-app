@@ -1,11 +1,12 @@
 import type { JSX } from 'react'
 import { useState, useEffect, useRef } from 'react'
 import { useAppSelector } from '@/app/hooks.ts'
-import { selectUsername } from '@/features/chat'
+import { selectActiveRoom, selectUsername } from '@/features/chat'
 import { sendRpc } from '@/utils/socketUtils.ts'
 
 export const MessageInput = (): JSX.Element => {
   const username = useAppSelector(selectUsername)
+  const room = useAppSelector(selectActiveRoom)
   const [message, setMessage] = useState('')
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
 
@@ -14,9 +15,9 @@ export const MessageInput = (): JSX.Element => {
   }, [])
 
   const handleSend = async () => {
-    if (!message.trim()) return
+    if (!message.trim() || !username || !room) return
     try {
-      await sendRpc('message', { message, username })
+      await sendRpc('message', { message, username, room })
       setMessage('')
       textareaRef.current?.focus()
     } catch (err) {

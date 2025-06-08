@@ -1,11 +1,11 @@
 import { useEffect, useRef } from 'react'
 import { useAppDispatch, useAppSelector } from '@/app/hooks.ts'
-import { addMessage, selectUsername, setUsername } from '@/features/chat'
+import { addMessage, selectActiveRoom, selectUsername, setUsername } from '@/features/chat'
 import { ChatHeader } from '@/components/ChatHeader'
 import { ChatSidebar } from '@/components/ChatSidebar'
 import { MessageInput } from '@/components/MessageInput'
 import { MessageList } from '@/components/MessageList'
-import { socket } from '@/utils/socketUtils.ts'
+import { socket, sendRpc } from '@/utils/socketUtils.ts'
 import { faker } from '@faker-js/faker'
 import type { ChatMessage } from '@/features/chat'
 import type { JSX } from 'react'
@@ -20,6 +20,7 @@ type RpcMessage<T = unknown> = {
 export const ChatWindow = (): JSX.Element => {
   const dispatch = useAppDispatch()
   const username = useAppSelector(selectUsername)
+  const room = useAppSelector(selectActiveRoom)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -29,6 +30,7 @@ export const ChatWindow = (): JSX.Element => {
   }, [username, dispatch])
 
   useEffect(() => {
+    sendRpc('joinRoom', { room }).catch(console.error)
     const handleMessage = (data: unknown) => {
       const message = data as RpcMessage<ChatMessage>
 
@@ -42,7 +44,7 @@ export const ChatWindow = (): JSX.Element => {
     return () => {
       socket.off('rpc', handleMessage)
     }
-  }, [dispatch])
+  }, [dispatch, room])
 
   return (
     <div className="flex flex-col h-screen">
