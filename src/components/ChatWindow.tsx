@@ -1,21 +1,34 @@
 import { useEffect, useRef } from 'react'
 import { useAppDispatch, useAppSelector } from '@/app/hooks.ts'
-import { addMessage, selectActiveRoom, selectUsername, setUsername } from '@/features/chat'
+import {
+  addMessage,
+  selectActiveRoom,
+  selectUsername,
+  setActiveUsers,
+  setUsername,
+} from '@/features/chat'
 import { ChatHeader } from '@/components/ChatHeader'
 import { ChatSidebar } from '@/components/ChatSidebar'
 import { MessageInput } from '@/components/MessageInput'
 import { MessageList } from '@/components/MessageList'
-import { socket, sendRpc } from '@/utils/socketUtils.ts'
+import { initSocket, getSocket, sendRpc } from '@/utils/socketUtils.ts'
 import { faker } from '@faker-js/faker'
 import type { ChatMessage } from '@/features/chat'
 import type { JSX } from 'react'
 
-type RpcMessage<T = unknown> = {
-  jsonrpc: '2.0'
-  method: string
-  params?: T
-  id?: string | number | null
-}
+type RpcMessage =
+  | {
+      jsonrpc: '2.0'
+      method: 'message'
+      params: ChatMessage
+      id?: string | number | null
+    }
+  | {
+      jsonrpc: '2.0'
+      method: 'activeUsers'
+      params: { room: string; users: string[] }
+      id?: string | number | null
+    }
 
 export const ChatWindow = (): JSX.Element => {
   const dispatch = useAppDispatch()
@@ -25,17 +38,29 @@ export const ChatWindow = (): JSX.Element => {
 
   useEffect(() => {
     if (!username) {
-      dispatch(setUsername(faker.person.fullName()))
+      const newName = faker.person.fullName()
+      dispatch(setUsername(newName))
+      initSocket(newName)
+    } else {
+      initSocket(username)
     }
   }, [username, dispatch])
 
   useEffect(() => {
-    sendRpc('joinRoom', { room }).catch(console.error)
-    const handleMessage = (data: unknown) => {
-      const message = data as RpcMessage<ChatMessage>
+    if (!username || !room) return
 
-      if (message.method === 'message' && message.params) {
+    sendRpc('joinRoom', { room, username }).catch(console.error)
+
+    const socket = getSocket()
+    const handleMessage = (data: unknown) => {
+      const message = data as RpcMessage
+
+      if (message.method === 'message') {
         dispatch(addMessage(message.params))
+      }
+
+      if (message.method === 'activeUsers') {
+        dispatch(setActiveUsers(message.params))
       }
     }
 
@@ -44,7 +69,7 @@ export const ChatWindow = (): JSX.Element => {
     return () => {
       socket.off('rpc', handleMessage)
     }
-  }, [dispatch, room])
+  }, [dispatch, room, username])
 
   return (
     <div className="flex flex-col h-screen">
@@ -54,10 +79,7 @@ export const ChatWindow = (): JSX.Element => {
         <ChatSidebar />
 
         <main className="flex flex-col flex-1 h-full border-r border-gray-200">
-          <div
-            className="flex flex-col flex-1 overflow-y-auto p-4"
-            ref={scrollContainerRef}
-          >
+          <div className="flex flex-col flex-1 overflow-y-auto p-4" ref={scrollContainerRef}>
             <MessageList scrollContainerRef={scrollContainerRef} />
           </div>
           <div className="p-4">

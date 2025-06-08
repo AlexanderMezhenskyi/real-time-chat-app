@@ -8,19 +8,15 @@ export const ChatActiveUserList = (): JSX.Element => {
 
   return (
     <ul className="flex flex-col gap-2">
-      {activeUsers.length > 0 ? (
-        activeUsers.map((user, index) => (
-          <li
-            key={index}
-            className="flex items-center gap-3 px-2 py-2 rounded-md hover:bg-gray-100 transition"
-          >
-            <UserAvatar user={user} />
-            <span className="truncate text-sm text-gray-900 font-medium">{user}</span>
-          </li>
-        ))
-      ) : (
-        <p className="text-xs text-gray-400 italic px-2">No users online</p>
-      )}
+      {activeUsers.map(user => (
+        <li
+          key={user}
+          className="flex items-center gap-3 px-2 py-2 rounded-md hover:bg-gray-100 transition"
+        >
+          <UserAvatar user={user} />
+          <span className="truncate text-sm text-gray-900 font-medium">{user}</span>
+        </li>
+      ))}
     </ul>
   )
 }

@@ -11,4 +11,5 @@ export type ChatSliceState = {
   username: string
   activeRoom: string
   rooms: string[]
+  activeUsers: Record<string, string[]>
 }

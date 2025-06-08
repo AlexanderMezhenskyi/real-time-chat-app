@@ -2,12 +2,27 @@ import { io } from 'socket.io-client'
 import type { Socket } from 'socket.io-client'
 
 let rpcId = 0
+let socket: Socket
+
 const socketUrl: string =
   import.meta.env.MODE === 'development'
     ? (import.meta.env.VITE_SOCKET_URL_DEV as string)
     : (import.meta.env.VITE_SOCKET_URL_PROD as string)
 
-export const socket: Socket = io(socketUrl)
+export const initSocket = (username: string): Socket => {
+  socket = io(socketUrl, {
+    auth: { username },
+  })
+
+  return socket
+}
+
+export const getSocket = (): Socket => {
+  if (!socket) {
+    throw new Error('Socket has not been initialized. Call initSocket first.')
+  }
+  return socket
+}
 
 type JsonRpcRequest = {
   jsonrpc: '2.0'
@@ -40,6 +55,7 @@ export const sendRpc = <T = unknown>(
   params?: Record<string, unknown>,
 ): Promise<T> => {
   const id = rpcId++
+  const s = getSocket()
 
   return new Promise((resolve, reject) => {
     const req: JsonRpcRequest = {
@@ -49,12 +65,12 @@ export const sendRpc = <T = unknown>(
       id,
     }
 
-    socket.emit('rpc', req)
+    s.emit('rpc', req)
 
     const handleResponse = (res: JsonRpcResponse) => {
       if (res.id !== id) return
 
-      socket.off('rpc', handleResponse)
+      s.off('rpc', handleResponse)
 
       if ('error' in res) {
         reject(new Error(`[${String(res.error.code)}] ${res.error.message}`))
@@ -63,6 +79,8 @@ export const sendRpc = <T = unknown>(
       }
     }
 
-    socket.on('rpc', handleResponse)
+    s.on('rpc', handleResponse)
   })
 }
+
+export { socket }
