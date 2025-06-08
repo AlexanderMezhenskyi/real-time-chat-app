@@ -1,17 +1,24 @@
 import { createAppSlice } from '@/app/createAppSlice'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSelector } from '@reduxjs/toolkit'
-import type { ChatMessage } from '@/features/chat/types'
+import type { ChatMessage, ChatSliceState } from '@/features/chat/types'
 import type { RootState } from '@/app/store'
-
-export type ChatSliceState = {
-  messages: ChatMessage[]
-  username: string
-}
 
 const initialState: ChatSliceState = {
   messages: [],
   username: '',
+  activeRoom: 'General',
+  rooms: [
+    'General',
+    'Tech talk',
+    'Movie club',
+    'Music lounge',
+    'Gaming hub',
+    'Coding corner',
+    'Sports arena',
+    'Ideas lab',
+    'Memes & fun',
+  ],
 }
 
 export const chatSlice = createAppSlice({
@@ -25,27 +32,51 @@ export const chatSlice = createAppSlice({
     setUsername: create.reducer((state, action: PayloadAction<string>) => {
       state.username = action.payload
     }),
-    clearMessages: create.reducer(state => {
-      state.messages = []
+    joinRoom: create.reducer((state, action: PayloadAction<string>) => {
+      if (!state.rooms.includes(action.payload)) {
+        state.rooms.push(action.payload)
+      }
+      state.activeRoom = action.payload
+    }),
+    setActiveRoom: create.reducer((state, action: PayloadAction<string>) => {
+      state.activeRoom = action.payload
     }),
   }),
 })
 
 export const chatSelectors = {
-  selectMessages: (state: RootState) => state.chat.messages,
+  selectMessages: createSelector(
+    [(state: RootState) => state.chat.messages, (state: RootState) => state.chat.activeRoom],
+    (messages, activeRoom) => messages.filter(m => m.room === activeRoom),
+  ),
+  selectRooms: (state: RootState) => state.chat.rooms,
   selectUsername: (state: RootState) => state.chat.username,
+  selectActiveRoom: (state: RootState) => state.chat.activeRoom,
   selectActiveUsers: createSelector(
-    [state => state.chat.messages, state => state.chat.username],
-    (messages: ChatMessage[], username: string) => {
+    [
+      (state: RootState) => state.chat.messages,
+      (state: RootState) => state.chat.username,
+      (state: RootState) => state.chat.activeRoom,
+    ],
+    (messages: ChatMessage[], username: string, currentRoom: string) => {
       const usersSet = new Set<string>()
-      messages.forEach(msg => {
-        if (msg.author) usersSet.add(msg.author)
+
+      messages.forEach(m => {
+        if (m.room === currentRoom && m.author) {
+          usersSet.add(m.author)
+        }
       })
-      if (username) usersSet.add(username)
+
+      if (username) {
+        const userHasMessage = messages.some(m => m.room === currentRoom && m.author === username)
+        if (!userHasMessage) usersSet.add(username)
+      }
+
       return Array.from(usersSet)
     },
   ),
 }
 
-export const { addMessage, setUsername, clearMessages } = chatSlice.actions
-export const { selectMessages, selectUsername, selectActiveUsers } = chatSelectors
+export const { addMessage, setUsername, joinRoom, setActiveRoom } = chatSlice.actions
+export const { selectMessages, selectRooms, selectUsername, selectActiveRoom, selectActiveUsers } =
+  chatSelectors
