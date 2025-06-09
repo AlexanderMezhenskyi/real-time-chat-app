@@ -13,8 +13,8 @@ export const ChatRoomList = (): JSX.Element => {
 
   useEffect(() => {
     if (error) {
-      const timer = setTimeout(() => setError(''), 3000)
-      return () => clearTimeout(timer)
+      const timer = setTimeout(() => { setError(''); }, 3000)
+      return () => { clearTimeout(timer); }
     }
   }, [error])
 

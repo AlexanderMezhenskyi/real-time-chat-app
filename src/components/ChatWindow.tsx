@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useAppDispatch, useAppSelector } from '@/app/hooks.ts'
 import {
   addMessage,
@@ -78,16 +78,20 @@ export const ChatWindow = (): JSX.Element => {
 
   useEffect(() => {
     if (error) {
-      const timer = setTimeout(() => setError(''), 3000)
-      return () => clearTimeout(timer)
+      const timer = setTimeout(() => { setError(''); }, 3000)
+      return () => { clearTimeout(timer); }
     }
   }, [error])
+
+  const handleSidebarOpen = useCallback((value: boolean) => {
+    setSidebarOpen(value)
+  }, [])
 
   return (
     <div className="flex flex-col h-screen">
       <ChatHeader
         onMenuClick={() => {
-          setSidebarOpen(true)
+          handleSidebarOpen(true)
         }}
       />
 
@@ -95,7 +99,7 @@ export const ChatWindow = (): JSX.Element => {
         <ChatSidebar
           mobileOpen={sidebarOpen}
           onClose={() => {
-            setSidebarOpen(false)
+            handleSidebarOpen(false)
           }}
         />
 

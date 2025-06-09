@@ -19,7 +19,7 @@ export const MessageInput = (): JSX.Element => {
   useEffect(() => {
     if (error) {
       const timer = setTimeout(() => { setError(''); }, 3000)
-      return () => clearTimeout(timer)
+      return () => { clearTimeout(timer); }
     }
   }, [error])
 
