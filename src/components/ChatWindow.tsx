@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useAppDispatch, useAppSelector } from '@/app/hooks.ts'
 import {
   addMessage,
@@ -31,6 +31,7 @@ type RpcMessage =
     }
 
 export const ChatWindow = (): JSX.Element => {
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const dispatch = useAppDispatch()
   const username = useAppSelector(selectUsername)
   const room = useAppSelector(selectActiveRoom)
@@ -73,10 +74,19 @@ export const ChatWindow = (): JSX.Element => {
 
   return (
     <div className="flex flex-col h-screen">
-      <ChatHeader />
+      <ChatHeader
+        onMenuClick={() => {
+          setSidebarOpen(true)
+        }}
+      />
 
       <div className="max-w-screen-2xl mx-auto w-full flex flex-1 overflow-hidden">
-        <ChatSidebar />
+        <ChatSidebar
+          mobileOpen={sidebarOpen}
+          onClose={() => {
+            setSidebarOpen(false)
+          }}
+        />
 
         <main className="flex flex-col flex-1 h-full border-r border-gray-200">
           <div className="flex flex-col flex-1 overflow-y-auto p-4" ref={scrollContainerRef}>
