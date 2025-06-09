@@ -1,5 +1,4 @@
 import js from '@eslint/js'
-import vitestPlugin from '@vitest/eslint-plugin'
 import prettierConfig from 'eslint-config-prettier/flat'
 import reactPlugin from 'eslint-plugin-react'
 import reactHooksPlugin from 'eslint-plugin-react-hooks'
@@ -44,11 +43,6 @@ const eslintConfig = config(
       parserOptions: {
         projectService: true,
         tsconfigRootDir: import.meta.dirname,
-      },
-    },
-    settings: {
-      vitest: {
-        typecheck: true,
       },
     },
     rules: {
