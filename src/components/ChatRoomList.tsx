@@ -1,10 +1,11 @@
 import { JSX, useEffect, useState } from "react"
 import { useAppSelector, useAppDispatch } from '@/app/hooks'
-import { selectRooms, selectActiveRoom, joinRoom } from '@/features/chat/chatSlice'
+import { selectRooms, selectActiveRoom, joinRoom, selectUsername } from "@/features/chat/chatSlice"
 import { sendRpc } from '@/utils/socketUtils'
 import { Toast } from '@/components/Toast'
 
 export const ChatRoomList = (): JSX.Element => {
+  const username = useAppSelector(selectUsername)
   const rooms = useAppSelector(selectRooms)
   const activeRoom = useAppSelector(selectActiveRoom)
   const dispatch = useAppDispatch()
@@ -18,10 +19,16 @@ export const ChatRoomList = (): JSX.Element => {
   }, [error])
 
   const handleClick = (roomName: string) => {
+    if (!username) {
+      setError("Username is missing")
+      return
+    }
+
     if (roomName !== activeRoom) {
-      sendRpc('joinRoom', { room: roomName }).catch(error => {
-        setError(error.message)
-      })
+      sendRpc('joinRoom', { room: roomName, username })
+        .catch(error => {
+          setError(error.message)
+        })
       dispatch(joinRoom(roomName))
     }
   }
