@@ -18,7 +18,7 @@ export const MessageInput = (): JSX.Element => {
 
   useEffect(() => {
     if (error) {
-      const timer = setTimeout(() => setError(''), 3000)
+      const timer = setTimeout(() => { setError(''); }, 3000)
       return () => clearTimeout(timer)
     }
   }, [error])
@@ -30,6 +30,7 @@ export const MessageInput = (): JSX.Element => {
       setMessage('')
       textareaRef.current?.focus()
     } catch (error) {
+      // @ts-ignore
       setError(error.message)
     }
   }

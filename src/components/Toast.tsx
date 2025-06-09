@@ -12,7 +12,7 @@ export const Toast = ({ message }: ToastProps): JSX.Element => {
         bg-red-600 text-white
         px-6 py-3
         rounded-md font-bold
-        shadow-lg z-[9999]
+        shadow-lg z-2147483647
         animate-fade-in
       "
     >
