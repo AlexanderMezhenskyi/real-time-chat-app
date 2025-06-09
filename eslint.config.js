@@ -26,7 +26,6 @@ const eslintConfig = config(
   },
   configs.strictTypeChecked,
   configs.stylisticTypeChecked,
-  vitestPlugin.configs.recommended,
   {
     name: 'eslint-plugin-react/jsx-runtime',
     ...reactPlugin.configs.flat['jsx-runtime'],
