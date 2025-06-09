@@ -12,7 +12,7 @@ export const MessageInput = (): JSX.Element => {
 
   useEffect(() => {
     textareaRef.current?.focus()
-  }, [])
+  }, [room])
 
   const handleSend = async () => {
     if (!message.trim() || !username || !room) return
