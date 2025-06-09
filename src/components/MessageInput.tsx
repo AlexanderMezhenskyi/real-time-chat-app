@@ -3,16 +3,25 @@ import { useState, useEffect, useRef } from 'react'
 import { useAppSelector } from '@/app/hooks.ts'
 import { selectActiveRoom, selectUsername } from '@/features/chat'
 import { sendRpc } from '@/utils/socketUtils.ts'
+import { Toast } from '@/components/Toast'
 
 export const MessageInput = (): JSX.Element => {
   const username = useAppSelector(selectUsername)
   const room = useAppSelector(selectActiveRoom)
   const [message, setMessage] = useState('')
+  const [error, setError] = useState<string | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
 
   useEffect(() => {
     textareaRef.current?.focus()
   }, [room])
+
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => setError(''), 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [error])
 
   const handleSend = async () => {
     if (!message.trim() || !username || !room) return
@@ -20,8 +29,8 @@ export const MessageInput = (): JSX.Element => {
       await sendRpc('message', { message, username, room })
       setMessage('')
       textareaRef.current?.focus()
-    } catch (err) {
-      console.error('Send failed:', err)
+    } catch (error) {
+      setError(error.message)
     }
   }
 
@@ -51,6 +60,7 @@ export const MessageInput = (): JSX.Element => {
           Send
         </button>
       </div>
+      {error ? <Toast message={error} /> : null}
     </div>
   )
 }

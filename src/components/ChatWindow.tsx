@@ -11,6 +11,7 @@ import { ChatHeader } from '@/components/ChatHeader'
 import { ChatSidebar } from '@/components/ChatSidebar'
 import { MessageInput } from '@/components/MessageInput'
 import { MessageList } from '@/components/MessageList'
+import { Toast } from '@/components/Toast'
 import { initSocket, getSocket, sendRpc } from '@/utils/socketUtils.ts'
 import { faker } from '@faker-js/faker'
 import type { ChatMessage } from '@/features/chat'
@@ -32,6 +33,7 @@ type RpcMessage =
 
 export const ChatWindow = (): JSX.Element => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const dispatch = useAppDispatch()
   const username = useAppSelector(selectUsername)
   const room = useAppSelector(selectActiveRoom)
@@ -50,7 +52,9 @@ export const ChatWindow = (): JSX.Element => {
   useEffect(() => {
     if (!username || !room) return
 
-    sendRpc('joinRoom', { room, username }).catch(console.error)
+    sendRpc('joinRoom', { room, username }).catch(error => {
+      setError(error.message)
+    })
 
     const socket = getSocket()
     const handleMessage = (data: unknown) => {
@@ -71,6 +75,13 @@ export const ChatWindow = (): JSX.Element => {
       socket.off('rpc', handleMessage)
     }
   }, [dispatch, room, username])
+
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => setError(''), 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [error])
 
   return (
     <div className="flex flex-col h-screen">
@@ -97,6 +108,7 @@ export const ChatWindow = (): JSX.Element => {
           </div>
         </main>
       </div>
+      {error ? <Toast message={error} /> : null}
     </div>
   )
 }
